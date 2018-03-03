@@ -49,7 +49,8 @@ public class Connect4 implements CommandLineRunner {
 		} while(!ge.isGameFinished());
 	
 		scanner.close();
-		System.out.println(ge.getWinner());
+		System.out.println(ge.displayWinner());
 		System.out.println("````");
+		System.out.println(ge.getPlayHistory());
 	}
 }

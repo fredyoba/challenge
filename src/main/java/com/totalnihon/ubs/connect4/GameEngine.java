@@ -1,14 +1,17 @@
 package com.totalnihon.ubs.connect4;
 
 import java.util.Arrays;
+import java.util.Vector;
 
+import com.totalnihon.ubs.connect4.infrastructure.exception.GameTerminatedException;
 import org.springframework.context.annotation.Configuration;
 
 import com.totalnihon.ubs.connect4.infrastructure.exception.ColumnIsFullException;
 import com.totalnihon.ubs.connect4.infrastructure.exception.ColumnOutOfBoudariesException;
+import org.springframework.stereotype.Component;
 
 
-@Configuration
+@Component
 public class GameEngine {
 	final public static String PLAYERA_COLOR = "RED";
 	final public static String PLAYERB_COLOR = "YELLOW";
@@ -50,7 +53,9 @@ public class GameEngine {
 	
 	/** hold the winner or empty if none */
 	private STATE winner = STATE.EMPTY;
-	
+
+	private Vector<Integer> playHistory;
+
 	public GameEngine() {
 		startNewGame();
 	}
@@ -59,7 +64,8 @@ public class GameEngine {
 	public void startNewGame() {		
 		// game is obviously not finished
 		hasWinner = false;		
-		
+		turn	  = true;
+
 		// number of empty disk, is the number of cells in the board
 		remainingEmptyDisc = COLUMNS * ROWS;
 		
@@ -70,6 +76,8 @@ public class GameEngine {
 		// init the board, by default all column have empty state
 		board = new STATE[COLUMNS*ROWS];
 		Arrays.fill(board, STATE.EMPTY);
+
+		playHistory = new Vector<Integer>();
 	}
 
 	/** gets which user turn 
@@ -90,14 +98,17 @@ public class GameEngine {
 	 * @throws ColumnOutOfBoudariesException if the column chosen is outside boundaries
 	 * @throws ColumnIsFullException if the column chosen has no room for insertion
 	 * */
-	public void play(boolean turn, int pColumn) throws ColumnIsFullException, ColumnOutOfBoudariesException {
+	public void play(boolean turn, int pColumn) throws ColumnIsFullException, ColumnOutOfBoudariesException, GameTerminatedException {
 		// chift column value to index column
 		int column = pColumn -1;
-		
+
+		if(isGameFinished()) throw new GameTerminatedException("Game is FInished");
+
 		// mark the cell with the player value
 		board[getAbsoluteIndex(column)] = (turn? STATE.PLAYERA:STATE.PLAYERB);
-			
-			
+
+		playHistory.add(pColumn);
+
 		// check if this play makes it to win
 		if(checkWin(column)) {
 			hasWinner = true; // there was a winner, we mark the game as won
@@ -195,11 +206,19 @@ public class GameEngine {
 	
 	/** handy procedure to display text of the outcome of the game, call this function to know current state of the game
 	 * whether player A wins or player B wins or nobody */
-	public String getWinner() {
+	public String displayWinner() {
 		return((winner == STATE.PLAYERA? PLAYERA:winner == STATE.PLAYERB? PLAYERB: NOBODY) + 
 				"[" + (winner == STATE.PLAYERA? PLAYERA_COLOR:winner == STATE.PLAYERB? PLAYERB_COLOR: "") + "] wins!");
 	}
-	
+
+	public STATE getWinner() {
+		return(winner);
+	}
+
+	public Vector<Integer> getPlayHistory() {
+		return(playHistory);
+	}
+
 	/** traverse the board from end to beginning to display the content */
 	public void printBoard() {
 		int column, row;
