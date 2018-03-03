@@ -1,1 +1,8 @@
 /target/
+.gitignore
+. .. .classpath .git .gitignore .idea .project .settings
+.idea
+.project
+.settings
+.classpath
+connect4.iml
