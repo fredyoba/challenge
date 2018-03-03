@@ -6,3 +6,4 @@
 .settings
 .classpath
 connect4.iml
+*.log
