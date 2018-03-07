@@ -1,6 +1,8 @@
 package com.totalnihon.ubs.connect4;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Stack;
 import java.util.Vector;
 
 import com.totalnihon.ubs.connect4.infrastructure.exception.GameTerminatedException;
@@ -54,7 +56,7 @@ public class GameEngine {
 	/** hold the winner or empty if none */
 	private STATE winner = STATE.EMPTY;
 
-	private Vector<Integer> playHistory;
+	private Stack<Integer> playHistory;
 
 	public GameEngine() {
 		startNewGame();
@@ -77,7 +79,7 @@ public class GameEngine {
 		board = new STATE[COLUMNS*ROWS];
 		Arrays.fill(board, STATE.EMPTY);
 
-		playHistory = new Vector<Integer>();
+		playHistory = new Stack<>();
 	}
 
 	/** gets which user turn 
@@ -87,7 +89,7 @@ public class GameEngine {
 	}
 	
 	/** It's setting the next player turn */
-	private void toggleTurn() {
+	public void toggleTurn() {
 		turn=!turn;
 	}
 	
@@ -119,7 +121,7 @@ public class GameEngine {
 		rowLevel[column]++;
 
 		// set turn of the player
-		toggleTurn();
+	//	toggleTurn();
 			
 		// decrease number of empty disc, game finishes when it reaches 0
 		remainingEmptyDisc--;
@@ -249,8 +251,27 @@ public class GameEngine {
 			if((i+1)%COLUMNS == 0) 
 				sb.append("|\n");
 		}
-		
+
 		// finally print all
 		System.out.println(sb.toString());
+	}
+
+	public void undo()  {
+		if(playHistory.size() > 0) {
+			Integer lastPlay = playHistory.pop();
+
+			int column = lastPlay;
+			int row = rowLevel[column - 1]-1;
+
+			try {
+
+				board[COLUMNS*row+column-1] = STATE.EMPTY;
+				rowLevel[column - 1]--;
+			//	turn = !turn;
+				remainingEmptyDisc++;
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
